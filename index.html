@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}Medi-Civic — Student Grievance System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-80">
+            <div class="col-lg-6">
+                <div class="hero-badge mb-3">
+                    <i class="bi bi-shield-check"></i> Trusted by Educational Institutions
+                </div>
+                <h1 class="hero-title">
+                    Your Voice<br>
+                    <span class="text-gradient">Matters.</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Medi-Civic is a student grievance reporting &amp; priority-management system.
+                    Submit, track, and resolve institutional problems — organized by urgency and importance.
+                </p>
+                <div class="d-flex gap-3 mt-4">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4">
+                        <i class="bi bi-person-plus me-2"></i>Register Now
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center mt-5 mt-lg-0">
+                <div class="hero-illustration">
+                    <div class="feature-cards-preview">
+                        <div class="preview-card card-1">
+                            <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                            <span>Infrastructure Issue</span>
+                            <span class="badge bg-danger">Critical</span>
+                        </div>
+                        <div class="preview-card card-2">
+                            <i class="bi bi-droplet-fill text-info"></i>
+                            <span>Sanitation Problem</span>
+                            <span class="badge bg-warning text-dark">High</span>
+                        </div>
+                        <div class="preview-card card-3">
+                            <i class="bi bi-book-fill text-success"></i>
+                            <span>Academic Concern</span>
+                            <span class="badge bg-info">Medium</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-5">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-2">How Medi-Civic Works</h2>
+        <p class="text-center text-muted mb-5">A streamlined process from complaint to resolution</p>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="bi bi-pencil-square"></i>
+                    </div>
+                    <h5 class="fw-bold">1. Submit Complaint</h5>
+                    <p class="text-muted">Students describe their issue, select a category, and rate its urgency and importance.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="bi bi-sort-down"></i>
+                    </div>
+                    <h5 class="fw-bold">2. Auto-Prioritize</h5>
+                    <p class="text-muted">The system calculates a priority score and assigns a level — Critical, High, Medium, or Low.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <h5 class="fw-bold">3. Review & Resolve</h5>
+                    <p class="text-muted">Authorities view prioritized complaints, update statuses, and work towards resolution.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-2">Complaint Categories</h2>
+        <p class="text-center text-muted mb-5">Report issues across all institutional domains</p>
+        <div class="row g-3 justify-content-center">
+            {% set cats = [
+                ('🏗️', 'Infrastructure'),
+                ('🧹', 'Sanitation'),
+                ('📚', 'Academic'),
+                ('🛡️', 'Safety'),
+                ('🏠', 'Hostel'),
+                ('🚌', 'Transportation'),
+                ('📄', 'Administrative'),
+                ('💻', 'IT & Network'),
+                ('📌', 'Other')
+            ] %}
+            {% for icon, name in cats %}
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="category-pill text-center p-3">
+                    <span class="category-emoji">{{ icon }}</span>
+                    <div class="mt-2 fw-medium small">{{ name }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

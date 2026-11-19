@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}New Complaint — Medi-Civic{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex align-items-center mb-4">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm me-3">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <div>
+                    <h2 class="fw-bold mb-0"><i class="bi bi-plus-circle me-2"></i>Submit New Complaint</h2>
+                    <p class="text-muted mb-0">Describe your problem and rate its urgency and importance.</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <form method="POST" id="complaintForm">
+                        <!-- Title -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Complaint Title <span class="text-danger">*</span></label>
+                            <input type="text" name="title" class="form-control form-control-lg" 
+                                   placeholder="Brief summary of your problem" required maxlength="200">
+                        </div>
+
+                        <!-- Category -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Category <span class="text-danger">*</span></label>
+                            <select name="category_id" class="form-select form-select-lg" required>
+                                <option value="">Select a category</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.icon }} {{ cat.name }} — {{ cat.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Detailed Description <span class="text-danger">*</span></label>
+                            <textarea name="description" class="form-control" rows="5" 
+                                      placeholder="Describe the problem in detail. Include location, time, and any other relevant information."
+                                      required minlength="20"></textarea>
+                        </div>
+
+                        <hr>
+
+                        <!-- Priority Inputs -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-clock text-danger me-1"></i>Urgency
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <p class="text-muted small mb-2">How quickly does this need attention?</p>
+                                <div class="urgency-selector">
+                                    {% for i in range(1, 6) %}
+                                    <label class="urgency-option">
+                                        <input type="radio" name="urgency" value="{{ i }}" {% if i == 3 %}checked{% endif %}>
+                                        <span class="urgency-label">{{ i }}</span>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small class="text-muted">Not urgent</small>
+                                    <small class="text-muted">Very urgent</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-star text-warning me-1"></i>Importance
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <p class="text-muted small mb-2">How important is this issue overall?</p>
+                                <div class="urgency-selector">
+                                    {% for i in range(1, 6) %}
+                                    <label class="urgency-option">
+                                        <input type="radio" name="importance" value="{{ i }}" {% if i == 3 %}checked{% endif %}>
+                                        <span class="urgency-label">{{ i }}</span>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small class="text-muted">Low impact</small>
+                                    <small class="text-muted">High impact</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Priority Preview -->
+                        <div class="priority-preview p-3 rounded mb-4" id="priorityPreview">
+                            <div class="d-flex align-items-center gap-3">
+                                <div>
+                                    <i class="bi bi-graph-up display-6" id="previewIcon"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">Estimated Priority</div>
+                                    <div>
+                                        Score: <strong id="previewScore">3.0</strong> —
+                                        Level: <span class="badge" id="previewLevel">Medium</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-send me-2"></i>Submit Complaint
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function updatePriority() {
+    const urgency = parseInt(document.querySelector('input[name="urgency"]:checked')?.value || 3);
+    const importance = parseInt(document.querySelector('input[name="importance"]:checked')?.value || 3);
+    const score = (0.6 * urgency + 0.4 * importance).toFixed(2);
+    let level, levelClass;
+    if (score >= 4.0) { level = 'Critical'; levelClass = 'bg-danger'; }
+    else if (score >= 3.0) { level = 'High'; levelClass = 'bg-warning text-dark'; }
+    else if (score >= 2.0) { level = 'Medium'; levelClass = 'bg-info'; }
+    else { level = 'Low'; levelClass = 'bg-success'; }
+    
+    document.getElementById('previewScore').textContent = score;
+    const badge = document.getElementById('previewLevel');
+    badge.textContent = level;
+    badge.className = 'badge ' + levelClass;
+}
+
+document.querySelectorAll('input[name="urgency"], input[name="importance"]').forEach(input => {
+    input.addEventListener('change', updatePriority);
+});
+updatePriority();
+</script>
+{% endblock %}

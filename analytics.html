@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block title %}Analytics — Medi-Civic{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-1"><i class="bi bi-bar-chart me-2"></i>Analytics Dashboard</h2>
+    <p class="text-muted mb-4">Overview of all grievances — distribution by category, priority, and status.</p>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card p-3 text-center">
+                <div class="stat-value display-5 fw-bold text-primary">{{ total }}</div>
+                <div class="stat-label">Total Complaints</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card p-3 text-center">
+                {% set critical_count = priority_stats|selectattr('priority_level', 'equalto', 'Critical')|list %}
+                <div class="stat-value display-5 fw-bold text-danger">{{ critical_count[0].count if critical_count else 0 }}</div>
+                <div class="stat-label">Critical</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card p-3 text-center">
+                {% set high_count = priority_stats|selectattr('priority_level', 'equalto', 'High')|list %}
+                <div class="stat-value display-5 fw-bold text-warning">{{ high_count[0].count if high_count else 0 }}</div>
+                <div class="stat-label">High Priority</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card p-3 text-center">
+                {% set resolved_count = status_stats|selectattr('status', 'equalto', 'Resolved')|list %}
+                <div class="stat-value display-5 fw-bold text-success">{{ resolved_count[0].count if resolved_count else 0 }}</div>
+                <div class="stat-label">Resolved</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Category Distribution -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-grid me-2"></i>By Category</h6>
+                </div>
+                <div class="card-body">
+                    {% for cat in category_stats %}
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span>{{ cat.icon }} {{ cat.name }}</span>
+                        <div class="d-flex align-items-center gap-2" style="min-width:150px;">
+                            <div class="progress flex-grow-1" style="height: 8px;">
+                                <div class="progress-bar bg-primary" style="width: {{ (cat.count / total * 100) if total > 0 else 0 }}%"></div>
+                            </div>
+                            <span class="badge bg-primary-subtle text-primary">{{ cat.count }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Priority Distribution -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-graph-up me-2"></i>By Priority Level</h6>
+                </div>
+                <div class="card-body">
+                    {% set priority_colors = {'Critical': 'danger', 'High': 'warning', 'Medium': 'info', 'Low': 'success'} %}
+                    {% for p in priority_stats %}
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="priority-badge priority-{{ p.priority_level|lower }}">{{ p.priority_level }}</span>
+                        <div class="d-flex align-items-center gap-2" style="min-width:150px;">
+                            <div class="progress flex-grow-1" style="height: 8px;">
+                                <div class="progress-bar bg-{{ priority_colors.get(p.priority_level, 'secondary') }}" 
+                                     style="width: {{ (p.count / total * 100) if total > 0 else 0 }}%"></div>
+                            </div>
+                            <span class="badge bg-{{ priority_colors.get(p.priority_level, 'secondary') }}">{{ p.count }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-clipboard-check me-2"></i>By Status</h6>
+                </div>
+                <div class="card-body">
+                    {% set status_colors = {'Submitted': 'secondary', 'Under Review': 'info', 'In Progress': 'primary', 'Escalated': 'danger', 'Resolved': 'success', 'Closed': 'dark'} %}
+                    {% for s in status_stats %}
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="status-badge status-{{ s.status|lower|replace(' ', '-') }}">{{ s.status }}</span>
+                        <div class="d-flex align-items-center gap-2" style="min-width:150px;">
+                            <div class="progress flex-grow-1" style="height: 8px;">
+                                <div class="progress-bar bg-{{ status_colors.get(s.status, 'secondary') }}" 
+                                     style="width: {{ (s.count / total * 100) if total > 0 else 0 }}%"></div>
+                            </div>
+                            <span class="badge bg-{{ status_colors.get(s.status, 'secondary') }}">{{ s.count }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Priority Complaints Table -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-header bg-white border-0 py-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-exclamation-octagon me-2"></i>Top Priority Complaints</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Student</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in recent %}
+                        <tr>
+                            <td class="fw-bold">{{ c.id }}</td>
+                            <td>{{ c.title[:40] }}{% if c.title|length > 40 %}...{% endif %}</td>
+                            <td>{{ c.category_name }}</td>
+                            <td>{{ c.student_name }}</td>
+                            <td>
+                                <span class="priority-badge priority-{{ c.priority_level|lower }}">
+                                    {{ c.priority_level }} ({{ c.priority_score }})
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ c.status|lower|replace(' ', '-') }}">{{ c.status }}</span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('view_complaint', complaint_id=c.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
